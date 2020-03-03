@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import './AppInformation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import './Extra.dart';
+import './Food.dart';
 
 class nrLunch extends StatefulWidget {
   final AppInformation appInfo;
@@ -16,9 +16,8 @@ class nrLunch extends StatefulWidget {
 class LunchState extends State<nrLunch> {
   @override
   nrLunch get widget => super.widget;
-  bool checkboxValueCity = false;
-  List<String> allCities = ['Calabresa', 'Cebola', 'Ovo Picado'];
-  List<String> selectedCities = [];
+  bool checkboxValueExtra = false;
+  List<Food> selectedExtras = [];
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +64,10 @@ class LunchState extends State<nrLunch> {
           context: context,
           builder: (context) {
             return _MyDialog(
-                cities: allCities,
-                selectedCities: selectedCities,
-                onSelectedCitiesListChanged: (cities) {
-                  selectedCities = cities;
+                extras: widget.appInfo.lists[5],
+                selectedExtras: selectedExtras,
+                onSelectedExtrasListChanged: (cities) {
+                  selectedExtras = widget.appInfo.lists[5];
                 });
           });
       //Navigator.pop(context);
@@ -97,25 +96,25 @@ class LunchState extends State<nrLunch> {
 
 class _MyDialog extends StatefulWidget {
   _MyDialog({
-    this.cities,
-    this.selectedCities,
-    this.onSelectedCitiesListChanged,
+    this.extras,
+    this.selectedExtras,
+    this.onSelectedExtrasListChanged,
   });
 
-  final List<String> cities;
-  final List<String> selectedCities;
-  final ValueChanged<List<String>> onSelectedCitiesListChanged;
+  final List<Food> extras;
+  final List<Food> selectedExtras;
+  final ValueChanged<List<Food>> onSelectedExtrasListChanged;
 
   @override
   _MyDialogState createState() => _MyDialogState();
 }
 
 class _MyDialogState extends State<_MyDialog> {
-  List<String> _tempSelectedCities = [];
+  List<Food> _tempSelectedExtras = [];
 
   @override
   void initState() {
-    _tempSelectedCities = widget.selectedCities;
+    _tempSelectedExtras = widget.selectedExtras;
     super.initState();
   }
 
@@ -136,31 +135,31 @@ class _MyDialogState extends State<_MyDialog> {
           ),
           Expanded(
             child: ListView.builder(
-                itemCount: widget.cities.length,
+                itemCount: widget.extras.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final cityName = widget.cities[index];
+                  final extra = widget.extras[index];
                   return Container(
                     child: CheckboxListTile(
-                        title: Text(cityName),
-                        subtitle: Text("RS 2,00"),
-                        value: _tempSelectedCities.contains(cityName),
+                        title: Text(extra.name),
+                        subtitle: Text(extra.value.toString()),
+                        value: _tempSelectedExtras.contains(extra),
                         onChanged: (bool value) {
                           if (value) {
-                            if (!_tempSelectedCities.contains(cityName)) {
+                            if (!_tempSelectedExtras.contains(extra)) {
                               setState(() {
-                                _tempSelectedCities.add(cityName);
+                                _tempSelectedExtras.add(extra);
                               });
                             }
                           } else {
-                            if (_tempSelectedCities.contains(cityName)) {
+                            if (_tempSelectedExtras.contains(extra)) {
                               setState(() {
-                                _tempSelectedCities.removeWhere(
-                                    (String city) => city == cityName);
+                                _tempSelectedExtras.removeWhere(
+                                    (Food e) => e == extra);
                               });
                             }
                           }
                           widget
-                              .onSelectedCitiesListChanged(_tempSelectedCities);
+                              .onSelectedExtrasListChanged(_tempSelectedExtras);
                         }),
                   );
                 }),

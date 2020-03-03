@@ -15,7 +15,7 @@ class AppInformation{
   Future<String> createFoodList() async{
     lists = Map();
     lists[0] = Map();
-    for(int i = 1; i < 5; i++)
+    for(int i = 1; i < 6; i++)
       lists[i] = new List<Food>();
 
     var url = "http://192.168.0.111/getfood.php";
