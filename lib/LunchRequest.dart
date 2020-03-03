@@ -21,52 +21,15 @@ class LunchState extends State<nrLunch> {
 
   @override
   Widget build(BuildContext context) {
-    /*void _showDialog() {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          // retorna um objeto do tipo Dialog
-          return AlertDialog(
-            title: new Text("Adicionais"),
-            content: ListView(
-              children: widget.extras
-                  .map((extra) => CheckboxListTile(
-                        title: new Text(extra.name),
-                        value: extra.state,
-                        onChanged: (bool val) {
-                          setState(() {
-                            widget.extras[0].state = val;
-                          });
-                        },
-                      ))
-                  .toList(),
-            ),
-            actions: <Widget>[
-              // define os botões na base do dialogo
-              new FlatButton(
-                child: new Text("Fechar"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }*/
-
-    void onTapLunch(int id) async {
-      var url = "http://192.168.0.111/insertFoodRequest.php";
-      http.Response response =
-          await http.post(url, body: {'id_food': id.toString()});
-      var dat = response.body.toString();
+    void onTapLunch(int id){
       showDialog(
           context: context,
           builder: (context) {
             return _MyDialog(
+                id: id,
                 extras: widget.appInfo.lists[5],
                 selectedExtras: selectedExtras,
-                onSelectedExtrasListChanged: (cities) {
+                onSelectedExtrasListChanged: (extras) {
                   selectedExtras = widget.appInfo.lists[5];
                 });
           });
@@ -96,11 +59,12 @@ class LunchState extends State<nrLunch> {
 
 class _MyDialog extends StatefulWidget {
   _MyDialog({
+    this.id,
     this.extras,
     this.selectedExtras,
     this.onSelectedExtrasListChanged,
   });
-
+  final int id;
   final List<Food> extras;
   final List<Food> selectedExtras;
   final ValueChanged<List<Food>> onSelectedExtrasListChanged;
@@ -120,16 +84,35 @@ class _MyDialogState extends State<_MyDialog> {
 
   @override
   Widget build(BuildContext context) {
+    void onTapDialog () async{
+      var url = "http://192.168.0.111/insertFoodRequest.php";
+      List<int> ids = new List();
+
+      ids.add(widget.id);
+
+      _tempSelectedExtras.forEach((food) =>
+          ids.add(food.id)
+      );
+
+      var jSonExtras = jsonEncode(ids) ;
+      http.Response response =
+          await http.post(url, body: jSonExtras);
+
+      var dat = response.body.toString();
+      var oi = 9;
+    }
     return Dialog(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
+            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text(
                 'ADICIONAIS',
                 style: TextStyle(fontSize: 18.0, color: Colors.black),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.right,
               ),
             ],
           ),
@@ -158,17 +141,19 @@ class _MyDialogState extends State<_MyDialog> {
                               });
                             }
                           }
-                          widget
-                              .onSelectedExtrasListChanged(_tempSelectedExtras);
+                          //widget.onSelectedExtrasListChanged(_tempSelectedExtras);
                         }),
                   );
                 }),
           ),
           RaisedButton(
             onPressed: () {
+              //Navigator.pop(context);
+             // Navigator.pop(context);
               Navigator.pop(context);
+              onTapDialog();
             },
-            //color: Color(0xFFfab82b),
+            color: Colors.indigo,
             child: Text(
               'Done',
               style: TextStyle(color: Colors.white),
