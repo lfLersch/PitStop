@@ -1,40 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:pit_stop/CardPage.dart';
+import 'package:pit_stop/FoodRequestPage.dart';
 import './FoodRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './TypeFood.dart';
 import './AppInformation.dart';
 import './Food.dart';
+import 'Request.dart';
 
 class HomePage extends StatelessWidget {
   final AppInformation appInfo;
 
   HomePage(this.appInfo);
 
-  final List<FoodRequest> foodrequests = new List();
+  var requests = Map();
 
   Future<String> getData() async {
-    var url = "http://192.168.0.111/getfood_request.php";
+    var url = "http://192.168.0.110/getfood_request.php";
     http.Response response = await http.get(url);
     var data = jsonDecode(response.body);
     for (var r in data) {
       Food f = appInfo.lists[0][2];
-      foodrequests.add(FoodRequest(appInfo.lists[0][int.parse(r['id_food'])], int.parse(r['id']),
-          int.parse(r['id_request']), int.parse(r['status']), r['obs'].toString()));
+      int requestIndex = int.parse(r['request']);
+      if (requests[requestIndex] == null) {
+        requests[requestIndex] = Request(requestIndex);
+      }
+      if(requests[requestIndex].foodRequests[r['id_food_request']] == null) {
+        requests[requestIndex].foodRequests[r['id_food_request']] =
+            FoodRequest(appInfo.lists[0][int.parse(r['id_food'])]);
+        requests[requestIndex].value += appInfo.lists[0][int.parse(r['id_food'])].value;
+      }
+      if (r['id_extra'] != "") {
+        requests[requestIndex].foodRequests[r['id_food_request']].extras.add(
+            appInfo.lists[0][int.parse(r['id_extra'])]);
+        requests[requestIndex].value += appInfo.lists[0][int.parse(r['id_extra'])].value;
+      }
     }
 
     return Future.value("Data download successfully");
   }
 
-  Widget requestTemplate(foodrequest) {
+  Widget requestTemplate(request, context) {
     return Card(
-      margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+        margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+        child: new InkWell(
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => FoodRequestPage(appInfo, request))),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: <Widget>[
             Text(
-              foodrequest.food.name,
+              request.id.toString(),
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.blueGrey,
@@ -42,13 +60,13 @@ class HomePage extends StatelessWidget {
             ),
             SizedBox(height: 6.0),
             Text(
-              foodrequest.idRequest.toString(),
+              'R\$ ' + request.value.toString(),
               style: TextStyle(fontSize: 14.0, color: Colors.blueGrey),
             )
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget build(BuildContext context) {
@@ -86,7 +104,7 @@ class HomePage extends StatelessWidget {
                       title: Text("Novo Pedido"),
                       trailing: Icon(Icons.add),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => newRequest(appInfo))),
+                          builder: (context) => CardPage(appInfo))),
                     ),
                     ListTile(
                       title: Text("Pedidos"),
@@ -101,8 +119,21 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               body: ListView(
-                children: foodrequests.map((foodrequest) => requestTemplate(foodrequest))
+                children: requests.values.toList().map((Request) => requestTemplate(Request,context))
                     .toList(),
+
+
+              ),
+              floatingActionButton: FloatingActionButton(
+                child: Icon(
+                    Icons.add
+                ),
+                onPressed: () {
+                  //...
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => CardPage(appInfo)));
+                },
+                heroTag: null,
               ),
             ); // snapshot.data  :- get your object which is pass from your downloadData() function
         }

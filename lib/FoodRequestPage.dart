@@ -3,19 +3,21 @@ import './AppInformation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './Food.dart';
+import 'Request.dart';
+import 'TypeFood.dart';
 
-class nrLunch extends StatefulWidget {
+class FoodRequestPage extends StatefulWidget {
   final AppInformation appInfo;
-  final int type;
+  final Request request;
 
-  nrLunch(this.appInfo, this.type);
+  FoodRequestPage(this.appInfo, this.request);
 
-  LunchState createState() => new LunchState();
+  FoodRequestState createState() => new FoodRequestState();
 }
 
-class LunchState extends State<nrLunch> {
+class FoodRequestState extends State<FoodRequestPage> {
   @override
-  nrLunch get widget => super.widget;
+  FoodRequestPage get widget => super.widget;
   bool checkboxValueExtra = false;
   List<Food> selectedExtras = [];
 
@@ -40,29 +42,68 @@ class LunchState extends State<nrLunch> {
 
     return Scaffold(
         body: ListView.builder(
-      // Let the ListView know how many items it needs to build.
+          // Let the ListView know how many items it needs to build.
 
-      itemCount: widget.appInfo.lists[widget.type].length,
-      // Provide a builder function. This is where the magic happens.
-      // Convert each item into a widget based on the type of item it is.
-      itemBuilder: (context, index) {
-        final item = widget.appInfo.lists[widget.type][index];
-        return ListTile(
-          title: Text(item.name),
-          subtitle: Text(item.id.toString()),
-          trailing: Text(item.value.toString()),
-          onTap: () => onTapLunch(item.id),
-        );
-      },
-    ));
+          itemCount: widget.request.foodRequests.length,
+          // Provide a builder function. This is where the magic happens.
+          // Convert each item into a widget based on the type of item it is.
+
+          itemBuilder: (context, index) {
+            //String key = widget.request.foodRequests.elementAt(index);
+            var key =  widget.request.foodRequests.keys.elementAt(index);
+            var item = widget.request.foodRequests[key];
+            var value = item.food.value;
+            var adicionais  = '';
+            for(var r in widget.request.foodRequests[key].extras){
+              adicionais = adicionais + r.name + '/';
+              value += r.value;
+            }
+            return ListTile(
+              title: Text(item.food.name),
+              subtitle: Text(adicionais),
+              trailing: Text('R\$ ' + value.toString()),
+              //onTap: () => onTapLunch(item.id),
+            );
+          },
+        ),
+        floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                child: Icon(
+                    Icons.add
+                ),
+                onPressed: () {
+                  widget.appInfo.card = widget.request.id;
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(
+                          builder: (context) => new typeFood(widget.appInfo, )));
+                },
+                heroTag: null,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              FloatingActionButton(
+                child: Icon(
+                    Icons.attach_money
+                ),
+                backgroundColor: Colors.green,
+                onPressed: () => {},
+                heroTag: null,
+              )
+            ]
+        )
+
+    );
   }
 }
 
 class _MyDialog extends StatefulWidget {
   _MyDialog({
     this.id,
-    this.extras,
     this.card,
+    this.extras,
     this.selectedExtras,
     this.onSelectedExtrasListChanged,
   });
@@ -100,7 +141,7 @@ class _MyDialogState extends State<_MyDialog> {
 
       var jSonExtras = jsonEncode(ids) ;
       http.Response response =
-          await http.post(url, body: jSonExtras);
+      await http.post(url, body: jSonExtras);
 
       var dat = response.body.toString();
       var t = dat;
@@ -142,7 +183,7 @@ class _MyDialogState extends State<_MyDialog> {
                             if (_tempSelectedExtras.contains(extra)) {
                               setState(() {
                                 _tempSelectedExtras.removeWhere(
-                                    (Food e) => e == extra);
+                                        (Food e) => e == extra);
                               });
                             }
                           }
@@ -153,9 +194,9 @@ class _MyDialogState extends State<_MyDialog> {
           ),
           RaisedButton(
             onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              Navigator.pop(context);
+             // Navigator.pop(context);
+            //  Navigator.pop(context);
+             // Navigator.pop(context);
               onTapDialog();
             },
             color: Colors.indigo,

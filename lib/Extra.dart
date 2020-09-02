@@ -1,10 +1,10 @@
 class Extra{
   String name;
   int id;
-  String value;
+  num value;
   bool state;
 
-  Extra(String name, int id, String value){
+  Extra(String name, int id, num value){
     this.name = name;
     this.id = id;
     this.value = value;

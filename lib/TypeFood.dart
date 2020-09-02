@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import './LunchRequest.dart';
 import './AppInformation.dart';
 
-class newRequest extends StatelessWidget {
+class typeFood extends StatelessWidget {
   final AppInformation appInfo;
-  const newRequest(this.appInfo);
+  const typeFood(this.appInfo);
   @override
   Widget build(BuildContext context) {
     return Scaffold(

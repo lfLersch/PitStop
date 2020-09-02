@@ -2,15 +2,13 @@ import './Food.dart';
 
 class FoodRequest{
   Food food;
+  List<Food> extras;
   int id;
   int idRequest;
   int status;
   String obs;
-  FoodRequest(Food food, int id, int idRequest, int status, String obs) {
+  FoodRequest(Food food) {
     this.food = food;
-    this.id = id;
-    this.idRequest = idRequest;
-    this.status = status;
-    this.obs = obs;
+    this.extras = new List<Food>();
   }
 }
