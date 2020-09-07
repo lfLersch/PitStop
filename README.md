@@ -2,4 +2,4 @@
 
 Bar Management Service
 
-![Alt Text](Demo_PitStop.gif)
+![Alt Text](Demo_Pitstop.gif)
